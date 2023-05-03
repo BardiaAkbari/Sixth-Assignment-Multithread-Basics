@@ -55,8 +55,8 @@ public class CPU_Simulator {
     public ArrayList<String> startSimulation(ArrayList<Task> tasks) {
         ArrayList<String> executedTasks = new ArrayList<>();
 
-        // TODO
-        for(int  i = 0 ; i < tasks.size(); i++){
+        int size = tasks.size();
+        for(int i = 0; i < size; i++){
             Task target = tasks.get(0);
             long min = target.getProcessingTime();
             for(int j = 1; j < tasks.size(); j++){
@@ -68,8 +68,12 @@ public class CPU_Simulator {
             }
             Thread thread = new Thread(target);
             thread.start();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             executedTasks.add(target.getID());
-            target.run();
             tasks.remove(target);
         }
         return executedTasks;

@@ -48,12 +48,10 @@ public class FindMultiplesTest {
         int target_sum = 1579905952;
         assertEquals(target_sum, findMultiples.getSum(n));
     }
-
     @Test
     void testSix() {
         int n = 1;
         int target_sum = 0;
         assertEquals(target_sum, findMultiples.getSum(n));
     }
-
 }
