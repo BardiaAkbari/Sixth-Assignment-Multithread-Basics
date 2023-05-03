@@ -10,6 +10,8 @@ package sbu.cs;
     Take note that you are NOT ALLOWED to change or delete any existing line of code.
  */
 
+import java.security.PublicKey;
+
 public class UseInterrupts {
 /*
     TODO
@@ -20,29 +22,37 @@ public class UseInterrupts {
  */
     public static class SleepThread extends Thread {
         int sleepCounter;
+        boolean interrupted;
 
         public SleepThread(int sleepCounter) {
             super();
             this.sleepCounter = sleepCounter;
+            this.interrupted = false;
         }
 
         @Override
         public void run() {
             System.out.println(this.getName() + " is Active.");
 
-            while (this.sleepCounter > 0)
-            {
+            while (this.sleepCounter > 0 && !Thread.currentThread().isInterrupted()) {
                 try {
                     Thread.sleep(1000);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
 
-                }
-                finally {
+                } finally {
                     this.sleepCounter--;
                     System.out.println("Number of sleeps remaining: " + this.sleepCounter);
                 }
             }
-
+            System.out.println("{ " + Thread.currentThread().getName() + " }" + " has been interrupted.");
+        }
+        @Override
+        public void interrupt(){
+            this.interrupted = !this.interrupted;
+        }
+        @Override
+        public boolean isInterrupted(){
+            return this.interrupted;
         }
     }
 
@@ -56,20 +66,28 @@ public class UseInterrupts {
  */
     public static class LoopThread extends Thread {
         int value;
+        boolean interrupted;
         public LoopThread(int value) {
             super();
             this.value = value;
+            this.interrupted = false;
         }
 
         @Override
         public void run() {
             System.out.println(this.getName() + " is Active.");
-
-            for (int i = 0; i < 10; i += 3)
-            {
+            for (int i = 0; i < 10 && Thread.currentThread().isInterrupted(); i += 3) {
                 i -= this.value;
-
             }
+            System.out.println("{ " + Thread.currentThread().getName() + " }" + " has been interrupted.");
+        }
+        @Override
+        public void interrupt(){
+            this.interrupted = !this.interrupted;
+        }
+        @Override
+        public boolean isInterrupted(){
+            return this.interrupted;
         }
     }
 
@@ -78,15 +96,29 @@ public class UseInterrupts {
     No existing line of code should be changed or deleted.
  */
     public static void main(String[] args) {
+
+        // TODO  Check if this thread runs for longer than 3 seconds (if it does, interrupt it)
         SleepThread sleepThread = new SleepThread(5);
+        long now = System.currentTimeMillis();
         sleepThread.start();
+        while(!sleepThread.isInterrupted()){
+            long subtract = System.currentTimeMillis() - now;
+            if(subtract > 3000){
+                sleepThread.interrupt();
+                break;
+            }
+        }
 
         // TODO  Check if this thread runs for longer than 3 seconds (if it does, interrupt it)
-
         LoopThread loopThread = new LoopThread(3);
+        long now2 = System.currentTimeMillis();
         loopThread.start();
-
-        // TODO  Check if this thread runs for longer than 3 seconds (if it does, interrupt it)
-
+        while(!loopThread.isInterrupted()){
+            long subtract = System.currentTimeMillis() - now2;
+            if(subtract > 3000){
+                loopThread.interrupt();
+                break;
+            }
+        }
     }
 }
